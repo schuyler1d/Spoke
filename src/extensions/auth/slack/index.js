@@ -49,8 +49,7 @@ export function setupAuth0Passport() {
           throw new Error("Null user in login callback");
         }
         const existingUser = await User.filter({ auth0_id: auth0Id });
-        console.log("AUTH0", req.user);
-        //req.user._json.updated_at is the current time of (this) login
+
         if (existingUser.length === 0) {
           const userMetadata =
             // eslint-disable-next-line no-underscore-dangle

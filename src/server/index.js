@@ -10,7 +10,7 @@ import { resolvers } from "./api/schema";
 import { schema } from "../api/schema";
 import passport from "passport";
 import cookieSession from "cookie-session";
-import passportSetup from "./auth-passport";
+import { passportSetup } from "../extensions/auth";
 import { log } from "../lib";
 import telemetry from "./telemetry";
 import { addServerEndpoints as messagingServicesAddServerEndpoints } from "../extensions/service-vendors/service_map";
@@ -74,11 +74,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
   cookieSession({
-    cookie: {
-      httpOnly: true,
-      secure: !DEBUG,
-      maxAge: null
-    },
+    httpOnly: true,
+    secure: !DEBUG,
+    //maxAge: 1000*10, // (10 seconds) -- does not work
+    //expires: new Date(Number(new Date()) + 1000 * 100), // TESTING: DO NOT COMMIT
     secret: process.env.SESSION_SECRET || global.SESSION_SECRET
   })
 );
@@ -123,9 +122,7 @@ app.get("/logout-callback", (req, res) => {
   res.redirect("/");
 });
 
-const loginCallbacks = passportSetup[
-  process.env.PASSPORT_STRATEGY || global.PASSPORT_STRATEGY || "auth0"
-](app);
+const loginCallbacks = passportSetup(app);
 
 if (loginCallbacks) {
   app.get("/login-callback", ...loginCallbacks.loginCallback);

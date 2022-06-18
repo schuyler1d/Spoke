@@ -1,0 +1,22 @@
+import { getConfig } from "../../server/api/lib/config";
+
+function getComponents() {
+  const enabledComponents = (global.PASSPORT_STRATEGY || "auth0").split(",");
+  const components = {};
+  enabledComponents.forEach(componentName => {
+    try {
+      const c = require(`./${componentName}/react-component.js`);
+      components[componentName] = c.CampaignContactsForm;
+    } catch (err) {
+      console.error(
+        "PASSPORT_STRATEGY failed to load component",
+        componentName
+      );
+    }
+  });
+  return components;
+}
+
+const componentList = getComponents();
+
+export default componentList;
